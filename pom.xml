@@ -3,7 +3,7 @@
   <groupId>com.chrisimi.InventoryAPI</groupId>
   <artifactId>InventoryAPI</artifactId>
   <version>0.0.3</version>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
   <build>
   	<defaultGoal>clean package</defaultGoal>
     <plugins>
