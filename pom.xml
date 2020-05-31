@@ -3,18 +3,32 @@
   <groupId>com.chrisimi.InventoryAPI</groupId>
   <artifactId>InventoryAPI</artifactId>
   <version>0.0.3</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <build>
+  	<defaultGoal>clean package</defaultGoal>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+        	<archive>
+        		<addMavenDescriptor>false</addMavenDescriptor>
+        		<manifest>
+        			<addClasspath>false</addClasspath>
+        		</manifest>
+        	</archive>
+        </configuration>
+      </plugin>
       <plugin>
       	<groupId>org.apache.maven.plugins</groupId>
       	<artifactId>maven-source-plugin</artifactId>
       	<version>3.0.1</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-shade-plugin</artifactId>
+      	<version>3.2.3</version>
       </plugin>
     </plugins>
   </build>
