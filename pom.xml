@@ -4,6 +4,13 @@
   <artifactId>InventoryAPI</artifactId>
   <version>0.0.3</version>
   <packaging>jar</packaging>
+  
+  <properties>
+  		<maven.compiler.source>1.8</maven.compiler.source>
+  		<maven.compiler.target>1.8</maven.compiler.target>
+  	
+  </properties>
+  
   <build>
   	<sourceDirectory>src</sourceDirectory>
   	<defaultGoal>clean package</defaultGoal>
