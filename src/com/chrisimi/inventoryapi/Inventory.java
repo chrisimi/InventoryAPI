@@ -48,17 +48,21 @@ public class Inventory {
 	 * @param inventoryAPI
 	 */
 	public void addEvents(IInventoryAPI inventoryAPI) {
-		Bukkit.getLogger().info("addEvents method");
+		
+		/**
+		 * first it goes through all methods and search if there is a ChatEvent or ClickEvent as Parameter.
+		 * Afterwards it'll add it to the Map and from there it is registered in the System
+		 * 
+		 * 
+		 * A valid Event method must not have more than 1 parameters. 
+		 * The name of the method is ignored (only the instance of the method from reflection will be saved)
+		 */
+		
 		for(Method method : inventoryAPI.getClass().getMethods()) {
 			if(!(method.getAnnotations().length == 1)) continue;
 
-			Bukkit.getLogger().info("found Method with any annotation");
 			if(method.getAnnotations()[0].annotationType().equals(EventMethodAnnotation.class)) {
-				Bukkit.getLogger().info("found Annotation type");
-				Bukkit.getLogger().info(method.getName() + ":  length of Parameters: " + method.getParameterCount());
-				Bukkit.getLogger().info(method.getName() + ": type of parameter:  " + method.getParameters()[0].getType().getClass().toString());
 				if(method.getParameters().length == 1 && method.getParameters()[0].getType().equals(ChatEvent.class)) {
-					Bukkit.getLogger().info("method has correct Parameters");
 					HashMap<EventType, Struct> hashMap = new HashMap<>();
 					Struct struct = new Struct();
 					struct.method = method;
@@ -73,11 +77,9 @@ public class Inventory {
 					}
 					else
 						registeredEvents.put(this, hashMap);
-					Bukkit.getLogger().info("added chatEventMethod ");
 				}
 				else if(method.getParameters().length == 1 && method.getParameters()[0].getType().equals(ClickEvent.class))
 				{
-					Bukkit.getLogger().info("method has correct parameters");
 					HashMap<EventType, Struct> hashMap = new HashMap<>();
 					Struct struct = new Struct();
 					struct.method = method;
@@ -92,7 +94,6 @@ public class Inventory {
 					}
 					else
 						registeredEvents.put(this, hashMap);
-					Bukkit.getLogger().info("added inventoryclick method");
 				}
 			}
 		}
@@ -102,6 +103,8 @@ public class Inventory {
 	 * @param player who should write something in chat
 	 */
 	public void waitforChatInput(final Player player) {
+		if(player == null) return;
+		
 		waitingForChatInput.put(player, this);
 		this.closeInventory();
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -110,7 +113,6 @@ public class Inventory {
 			public void run() {
 				if(waitingForChatInput.containsKey(player))
 					waitingForChatInput.remove(player);
-				Bukkit.getLogger().info("removed waitingForchat for Player: " + player.getName());
 			}
 		}, 20*60);
 	}
@@ -142,39 +144,16 @@ public class Inventory {
 	}
 
 	public static void inventoryClick(InventoryClickEvent event) {
+		
 		/*
-		Bukkit.getLogger().info("click " + registeredClickEvents.size());
-
-		org.bukkit.inventory.Inventory inv = event.getInventory();
-		ItemStack getClicked = event.getCurrentItem();
-		if(getClicked == null) return;
-
-		synchronized (registeredClickEvents) {
-			for(Map.Entry<Inventory, HashMap<ItemStack, BukkitRunnable>> entry : registeredClickEvents.entrySet()) {
-
-				Inventory inventory = entry.getKey();
-				Bukkit.getLogger().info("found entries: " + entry.getValue().size());
-				for(Map.Entry<ItemStack, BukkitRunnable> entries : entry.getValue().entrySet()) {
-					Bukkit.getLogger().info(entries.getKey().toString() + " - " + entries.getValue().toString());
-				}
-				Bukkit.getLogger().info(getClicked.toString());
-				if(!(inventory.bukkitInventory.equals(inv))) {
-					Bukkit.getLogger().info("not equal inventory");
-					continue;
-				}
-
-				BukkitRunnable runnable = entry.getValue().get(getClicked);
-				if(runnable != null) {
-					runnable.runTask(inventory.plugin);
-					event.setCancelled(true);
-					Bukkit.getLogger().info("ausf�hren");
-				} else {
-					Bukkit.getLogger().info("runnable is null");
-				}
-				return;
-			}
-		}
-		*/
+		 * The call of the method comes from the InventoryAPI which registered the Event by EventHandler
+		 * 
+		 * First the inventory from map and then check if it's a valid inventory.
+		 * If everything is clear then the registered ClickEvent method will be invoked by reflection
+		 * 
+		 * if ItemStack is null the method won't be invoked
+		 */
+		
 		org.bukkit.inventory.Inventory inv = event.getInventory();
 		Inventory inventoryAPI = getInventoryFromBukkitInventory(inv);
 		ItemStack getClicked = event.getCurrentItem();
@@ -189,12 +168,10 @@ public class Inventory {
 				Method method = data.get(EventType.INVENTORYCLICK).method;
 				if(method == null)
 				{
-					Bukkit.getLogger().info("method is null");
 					return;
 				}
 
 				method.invoke(data.get(EventType.INVENTORYCLICK).obj, clickEvent);
-				Bukkit.getLogger().info("invoked");
 				event.setCancelled(true);
 			} catch (Exception e)
 			{
@@ -205,6 +182,12 @@ public class Inventory {
 	}
 	public static void inventoryCloseEvent(InventoryCloseEvent event) {
 
+		/* Have to be rewritten
+		 * TODO 
+		 * A idea to clean the inventories
+		 * 
+		 */
+		
 		/*
 		org.bukkit.inventory.Inventory inv = event.getInventory();
 		synchronized (registeredEvents) {
@@ -219,47 +202,48 @@ public class Inventory {
 
 	}
 	public static void chatInput(final AsyncPlayerChatEvent event, JavaPlugin plugin) {
+		
+		/* First check if a inventory registered a chat event for that player and if that's true
+		 * invoke the ChatEvent method which the inventory registered by reflection
+		 * 
+		 */
+		
 		if(waitingForChatInput.containsKey(event.getPlayer())) event.setCancelled(true);
 
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
 			@Override
 			public void run() {
-				Bukkit.getLogger().info("found entries: " + waitingForChatInput.size());
-				for(Map.Entry<Player, Inventory> entries : waitingForChatInput.entrySet()) {
-					Bukkit.getLogger().info(entries.getKey().getName() + " - " + entries.getValue().player.getName());
-				}
 				Player player = event.getPlayer();
 				Inventory inventory = waitingForChatInput.remove(player);
 				if(inventory == null) {
-					Bukkit.getLogger().info("inventory is null");
 					return;
 				}
-				Bukkit.getLogger().info("registeredEvents: " + registeredEvents.size());
 				if(registeredEvents.containsKey(inventory)) {
 
-					Bukkit.getLogger().info("Found waitingForChat");
 					ChatEvent chatEvent = new ChatEvent(player, event.getMessage(), inventory);
 					HashMap<EventType, Struct> hashMap = registeredEvents.get(inventory);
 					Method method = hashMap.get(EventType.CHATINPUT).method;
 					if(method == null) {
-						Bukkit.getLogger().info("method is null");
 						return;
 					}
 
 					try {
 						method.invoke(hashMap.get(EventType.CHATINPUT).obj, chatEvent);
-						Bukkit.getLogger().info("invoked");
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
-					Bukkit.getLogger().info("no registered event found");
 				}
 			}
 		});
 	}
+	/**
+	 * get the InventoryAPI Inventory from a bukkit Inventory
+	 * @param inventory {@link org.bukkit.inventory.Inventory} instance of the Inventory
+	 * @return {@link Inventory} instance of the InventoryAPI inventory
+	 */
 	private static Inventory getInventoryFromBukkitInventory(org.bukkit.inventory.Inventory inventory) {
 		synchronized (registeredEvents) {
 			for(Map.Entry<Inventory, HashMap<EventType, Struct>> entry : registeredEvents.entrySet()) {
