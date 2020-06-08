@@ -4,14 +4,20 @@ import java.util.HashMap;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.server.ServerEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class InventoryAPI {
+public class InventoryAPI implements Listener{
 
+	private static JavaPlugin pluginInstance;
+	
 	private static HashMap<String, Inventory> registeredInventories = new HashMap<>();
 	
 	/**
@@ -28,6 +34,33 @@ public class InventoryAPI {
 		
 		return inventory;
 	}
+	/**
+	 * Initiate the whole InventoryAPI 
+	 * @param plugin {@link JavaPlugin} instance of the plugin
+	 */
+	public static void initiate(JavaPlugin plugin)
+	{
+		pluginInstance = plugin;
+		plugin.getServer().getPluginManager().registerEvents(new InventoryAPI(), plugin);
+	}
+	
+	@EventHandler
+	public void onInventoryClick(InventoryClickEvent event) 
+	{
+		Inventory.inventoryClick(event);
+	}
+	
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent event)
+	{
+		Inventory.inventoryCloseEvent(event);
+	}
+	@EventHandler
+	public void onChat(AsyncPlayerChatEvent event)
+	{
+		Inventory.chatInput(event, pluginInstance);
+	}
+
 	
 	public static String convertItemStackToString(ItemStack itemStack) {
 		YamlConfiguration config = new YamlConfiguration();
@@ -46,16 +79,5 @@ public class InventoryAPI {
 	}
 	public static Inventory getInventory(String UUID) {
 		return registeredInventories.get(UUID);
-	}
-	
-	
-	public static void InventoryAPIInventoryClickEvent(InventoryClickEvent event) {
-		Inventory.inventoryClick(event);
-	}
-	public static void InventoryCloseEvent(InventoryCloseEvent event) {
-		Inventory.inventoryCloseEvent(event);
-	}
-	public static void InventoryAPIPlayerChatEvent(AsyncPlayerChatEvent event, JavaPlugin plugin) {
-		Inventory.chatInput(event, plugin);
 	}
 }
