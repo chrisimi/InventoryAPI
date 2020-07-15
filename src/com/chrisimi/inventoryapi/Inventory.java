@@ -33,7 +33,13 @@ public class Inventory {
 	private final UUID InventoryID;
 	public final Plugin plugin;
 
-
+	/**
+	 * initialize the Inventory
+	 * @param player player instance
+	 * @param size size of the inventory must be a factor of 9
+	 * @param plugin instance of the plugin
+	 * @param inventoryName name of the inventory
+	 */
 	public Inventory(Player player, int size, Plugin plugin, String inventoryName) {
 		this.player = player;
 		this.bukkitInventory = Bukkit.createInventory(player, size, inventoryName);

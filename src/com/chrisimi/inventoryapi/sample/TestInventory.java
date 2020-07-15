@@ -32,7 +32,10 @@ public class TestInventory extends Inventory implements IInventoryAPI {
         if(event.getClicked().getType() == Material.IRON_INGOT)
         {
             player.sendMessage("you clicked on a iron ingot");
+
+            //tell the API that there should be a chat input
             waitforChatInput(player);
+            closeInventory();
         }
     }
     @EventMethodAnnotation
@@ -41,6 +44,7 @@ public class TestInventory extends Inventory implements IInventoryAPI {
         if(event.getMessage().equals("yes"))
         {
             player.sendMessage("you wrote yes in the chat");
+            openInventory();
         }
     }
 }
