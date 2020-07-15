@@ -6,7 +6,4 @@ package com.chrisimi.inventoryapi;
  *
  */
 public interface IInventoryAPI {
-
-	public void openInventory();
-	public void closeInventory();
 }

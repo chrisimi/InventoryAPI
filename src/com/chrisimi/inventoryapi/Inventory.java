@@ -1,10 +1,7 @@
 package com.chrisimi.inventoryapi;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -15,8 +12,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class Inventory {
 
@@ -29,15 +26,15 @@ public class Inventory {
 	private static HashMap<Player, Inventory> waitingForChatInput = new HashMap<>();
 	private static HashMap<Inventory, HashMap<EventType, Struct>> registeredEvents = new HashMap<>();
 
-	private final org.bukkit.inventory.Inventory bukkitInventory;
-	private final Player player;
+	public final org.bukkit.inventory.Inventory bukkitInventory;
+	public final Player player;
 
 
 	private final UUID InventoryID;
-	private final JavaPlugin plugin;
+	public final Plugin plugin;
 
-	@Deprecated
-	public Inventory(Player player, int size, JavaPlugin plugin, String inventoryName) {
+
+	public Inventory(Player player, int size, Plugin plugin, String inventoryName) {
 		this.player = player;
 		this.bukkitInventory = Bukkit.createInventory(player, size, inventoryName);
 		this.InventoryID = UUID.randomUUID();
