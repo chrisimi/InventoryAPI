@@ -2,9 +2,7 @@ package com.chrisimi.inventoryapi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,6 +23,8 @@ public class Inventory {
 
 	private static HashMap<Player, Inventory> waitingForChatInput = new HashMap<>();
 	private static HashMap<Inventory, HashMap<EventType, Struct>> registeredEvents = new HashMap<>();
+
+	private static List<Inventory> inventoryNotCancelClickEvent = new ArrayList<>();
 
 	public final org.bukkit.inventory.Inventory bukkitInventory;
 	public final Player player;
@@ -146,6 +146,18 @@ public class Inventory {
 		player.openInventory(bukkitInventory);
 	}
 
+	/**
+	 * when a inventory click event happens that it should be canceled
+	 * @param b yes or no
+	 */
+	public void cancelEventWhenClickEvent(boolean b)
+	{
+		if(b && inventoryNotCancelClickEvent.contains(this))
+			inventoryNotCancelClickEvent.remove(this);
+		else if(!b && !inventoryNotCancelClickEvent.contains(this))
+			inventoryNotCancelClickEvent.add(this);
+	}
+
 	public static void inventoryClick(InventoryClickEvent event) {
 		
 		/*
@@ -164,7 +176,7 @@ public class Inventory {
 
 		if(registeredEvents.containsKey(inventoryAPI))
 		{
-			ClickEvent clickEvent = new ClickEvent(getClicked, inv, inventoryAPI);
+			ClickEvent clickEvent = new ClickEvent(getClicked, inv, inventoryAPI, event.getSlot());
 			try
 			{
 				HashMap<EventType, Struct> data = registeredEvents.get(inventoryAPI);
@@ -175,7 +187,8 @@ public class Inventory {
 				}
 
 				method.invoke(data.get(EventType.INVENTORYCLICK).obj, clickEvent);
-				event.setCancelled(true);
+				if(!inventoryNotCancelClickEvent.contains(inventoryAPI))
+					event.setCancelled(true);
 			} catch (Exception e)
 			{
 				e.printStackTrace();
