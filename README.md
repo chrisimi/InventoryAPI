@@ -3,7 +3,7 @@ A small inventory API for Spigot > 1.13
 
 With this small API you can create chat events and inventory clicks.
 
-[example] https://github.com/chrisimi/InventoryAPI/blob/master/src/com/chrisimi/inventoryapi/sample/TestInventory.java
+[example](https://github.com/chrisimi/InventoryAPI/blob/master/src/com/chrisimi/inventoryapi/sample/TestInventory.java)
 
 ## download 
 clone the latest build from github `git clone https://www.github.com/chrisimi/InventoryAPI.git`. Then you have to update the project so that maven can download the dependencies and afterwards you use `maven clean install` to install the library in your local maven repository to use it
